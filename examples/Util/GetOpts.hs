@@ -12,33 +12,61 @@
 --
 -- So, to correctly attribute the source of the bulk of the functionality
 -- provided, here's its module header:
--- 
+--
 -- Module      :  System.Console.GetOpt
 -- Copyright   :  (c) Sven Panne Oct. 1996 (small changes Dec. 1997)
 -- License     :  BSD-style (see the file libraries\/core\/LICENSE)
--- 
+--
 -- Maintainer  :  libraries@haskell.org
 -- Stability   :  experimental
 -- Portability :  portable
 --
--- A Haskell port of GNU's getopt library 
+-- A Haskell port of GNU's getopt library
 --
 
 module Util.GetOpts
     ( module System.Console.GetOpt
-    , getOpt2           -- :: ArgOrder (a->a) 
+    , getOpt2           -- :: ArgOrder (a->a)
                         -- -> [OptDescr (a->a)]
                         -- -> [String]
                         -- -> a
                         -- -> (a,[String],[String])
     , usageInfo2        -- :: String -> [OptDescr a] -> String
+
+    , parseOptions      -- :: [OptDescr (a -> a)]
+                        -- :: a
+			-- -> [String]
+			-- -> (a, [String], [String])
+    , processOptions    -- :: [OptDescr (a -> a)]
+                        -- -> a
+	                -- -> IO (a, [String])
     ) where
 
 import Prelude
 import Data.List        ( isPrefixOf )
 import Text.PrettyPrint
---import Util.Pretty
 import System.Console.GetOpt
+
+import System.IO
+import System.Environment
+import System.Exit
+
+import Control.Monad ( when )
+
+processOptions :: [OptDescr (a -> a)]
+               -> a
+	       -> IO (a, [String])
+processOptions descriptors nullVal = do
+  ls <- getArgs
+  let (opts, ws, es) = parseOptions descriptors nullVal ls
+  when (not $ null es) $ do
+    hPutStrLn stderr (unlines es)
+    hPutStrLn stderr ("(try '--help' for list of options supported.)")
+    exitFailure
+  return (opts, ws)
+
+parseOptions :: [OptDescr (a -> a)] -> a -> [String] -> (a, [String], [String])
+parseOptions descriptors nullVal argv = getOpt2 Permute descriptors argv nullVal
 
 {- |
  The @getOpt@ provided @System.Console.GetOpt@ returns a list of
@@ -51,7 +79,7 @@ import System.Console.GetOpt
  to be quite a bit less cumbersome to work with, leaving you at
  the end with a single value (the record) packaging up all the
  options setting.
- 
+
  With @getOpt@, you normally end up (essentially) having to
  write a sub parser of the list of values returned, which just
  adds even more bulk to your code, for very little benefit.
@@ -75,7 +103,7 @@ getOpt2 ordering optDescr (arg:args) st = procNextOpt opt ordering
          (opt,rest)  = getNext arg args optDescr
          (st',xs,es) = getOpt2 ordering optDescr rest st
 
--- getOpt2 supporting code - copied verbatim from System.Console.GetOpt 
+-- getOpt2 supporting code - copied verbatim from System.Console.GetOpt
 -- as it isn't exported.
 
 data OptKind a                -- kind of cmd line arg (internal use only):
@@ -155,7 +183,7 @@ usageInfo2 :: String               -- header
 usageInfo2 header optDescr = render $ vcat $ text header : table
   where
     (ss, ls, descs) = unzip3 $ map fmtOpt optDescr
-    table           = 
+    table           =
         let (c1, ssd) = sameLen ss
             (c2, lsd) = sameLen ls
         in
@@ -188,11 +216,11 @@ usageInfo2 header optDescr = render $ vcat $ text header : table
 -- | Simple line formatting of a paragraph, introducing line breaks
 -- whenever length exceeds that of the first argument.
 fitText :: Int -> String -> Doc
-fitText width s = 
+fitText width s =
    vcat $ map (hsep . (map text))
               (fit 0 [] (words s))
   where
-     -- fill up lines left-to-right, introducing line breaks 
+     -- fill up lines left-to-right, introducing line breaks
      -- whenever line length exceeds 'width'.
     fit :: Int -> [String] -> [String] -> [[String]]
     fit _ acc [] = [reverse acc]

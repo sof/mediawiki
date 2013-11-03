@@ -5,7 +5,6 @@ import MediaWiki.API.Utils
 import MediaWiki.API.Query.AllPages
 
 import Text.XML.Light.Types
-import Text.XML.Light.Proc   ( strContent )
 
 import Control.Monad
 import Data.Maybe

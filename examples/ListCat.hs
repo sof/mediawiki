@@ -16,11 +16,6 @@ import MediaWiki.API.Query.CategoryMembers.Import as CatMem
 import MediaWiki.API.Query.Categories.Import as Cats
 
 import Util.GetOpts
-import System.IO
-import System.Environment
-import System.Exit
-
-import Control.Monad
 import Data.List
 
 -- begin option handling
@@ -60,20 +55,6 @@ option_descr =
            (ReqArg (\ x o -> o{optPage=Just x}) "PAGE")
 	   "the page title to list category pages for"
   ]
-
-
-parseOptions :: [String] -> (Options, [String], [String])
-parseOptions argv = getOpt2 Permute option_descr argv nullOptions
-
-processOptions :: IO (Options, [String])
-processOptions = do
-  ls <- getArgs
-  let (opts, ws, es) = parseOptions ls
-  when (not $ null es) $ do
-    hPutStrLn stderr (unlines es)
-    hPutStrLn stderr ("(try '--help' for list of options supported.)")
-    exitFailure
-  return (opts, ws)
 
 -- end option handling
 
@@ -119,7 +100,7 @@ queryPageCats url pgName = queryPageCats' emptyCategoriesRequest []
 
 main :: IO ()
 main = do
-  (opts, fs) <- processOptions
+  (opts, fs) <- processOptions option_descr nullOptions
   let url = optWiki opts
     -- not needed here, but left in to show how to login to a Wiki.
   case (optUser opts, optPass opts) of

@@ -1,11 +1,9 @@
 module MediaWiki.API.Query.Blocks.Import where
 
-import MediaWiki.API.Types
 import MediaWiki.API.Utils
 import MediaWiki.API.Query.Blocks
 
 import Text.XML.Light.Types
-import Text.XML.Light.Proc   ( strContent )
 
 import Control.Monad
 import Data.Maybe

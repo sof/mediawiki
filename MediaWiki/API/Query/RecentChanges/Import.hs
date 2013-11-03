@@ -5,7 +5,6 @@ import MediaWiki.API.Utils
 import MediaWiki.API.Query.RecentChanges
 
 import Text.XML.Light.Types
-import Text.XML.Light.Proc   ( strContent )
 
 import Control.Monad
 import Data.Maybe
@@ -36,8 +35,8 @@ xmlPage e = do
   let ns_t = pAttr "new_ns" e
   let tit_t = pAttr "new_title" e
   let pid_t = pAttr "new_pageid" e
-  let pg_to 
-       | any isJust [ns_t,tit_t,pid_t] 
+  let pg_to
+       | any isJust [ns_t,tit_t,pid_t]
        = Just
           emptyPageTitle{ pgNS=fromMaybe mainNamespace ns_t
                         , pgTitle=fromMaybe "" tit_t
@@ -73,8 +72,3 @@ xmlPage e = do
 	   , rchTimestamp = ts
 	   , rchComment = co
 	   }
-	   
-
-  
-  
-

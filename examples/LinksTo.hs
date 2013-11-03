@@ -1,7 +1,7 @@
 {-
   Querying for back/in links to a given page.
 
-  foo$ listCat "Haskell"
+  foo$ path/to/linksTo "Haskell"
   ...
   foo$
 -}
@@ -14,27 +14,22 @@ import MediaWiki.API
 import MediaWiki.API.Query.BackLinks.Import as Back
 
 import Util.GetOpts
-import System.IO
-import System.Environment
-import System.Exit
-
-import Control.Monad
 
 -- begin option handling
 data Options
  = Options
-    { optWiki    :: String
-    , optUser    :: Maybe String
-    , optPass    :: Maybe String
-    , optPage    :: Maybe String
+    { optWiki :: String
+    , optUser :: Maybe String
+    , optPass :: Maybe String
+    , optPage :: Maybe String
     }
 
 nullOptions :: Options
 nullOptions = Options
-    { optWiki    = "http://en.wikipedia.org/w/"
-    , optUser    = Nothing
-    , optPass    = Nothing
-    , optPage    = Nothing
+    { optWiki  = "http://en.wikipedia.org/w/"
+    , optUser  = Nothing
+    , optPass  = Nothing
+    , optPage  = Nothing
     }
 
 option_descr :: [OptDescr (Options -> Options)]
@@ -52,19 +47,6 @@ option_descr =
            (ReqArg (\ x o -> o{optPage=Just x}) "PAGE")
 	   "the page title to list category pages for"
   ]
-
-parseOptions :: [String] -> (Options, [String], [String])
-parseOptions argv = getOpt2 Permute option_descr argv nullOptions
-
-processOptions :: IO (Options, [String])
-processOptions = do
-  ls <- getArgs
-  let (opts, ws, es) = parseOptions ls
-  when (not $ null es) $ do
-    hPutStrLn stderr (unlines es)
-    hPutStrLn stderr ("(try '--help' for list of options supported.)")
-    exitFailure
-  return (opts, ws)
 
 -- end option handling
 
@@ -84,7 +66,7 @@ queryPageInLinks url pgName = queryInLinks emptyBackLinksRequest{blTitle=Just pg
 
 main :: IO ()
 main = do
-  (opts, fs) <- processOptions
+  (opts, fs) <- processOptions option_descr nullOptions
   let url = optWiki opts
   case mbCons (optPage opts) fs of
     [] -> return ()
