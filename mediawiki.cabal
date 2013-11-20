@@ -113,16 +113,16 @@ library
                      MediaWiki.Util.Codec.Percent,
                      MediaWiki.Util.Codec.URLEncoder
    Ghc-Options:    -Wall -O2
-   Build-Depends:  base >= 4, xml, HTTP >= 3001, network, mime, utf8-string
+   Build-Depends:  base >= 3 && < 5, xml, HTTP >= 3001, network, mime, utf8-string
 
 executable main {
-  Build-Depends:   mediawiki, base >= 4, xml, HTTP >= 3001, network, mime, utf8-string
+  Build-Depends:   mediawiki, base >= 3 && < 5, xml, HTTP >= 3001, network, mime, utf8-string
   Main-is:         Main.hs
   Ghc-options:     -Wall
 }
 
 executable listCat {
-  Build-Depends:   mediawiki, base >= 4, xml, HTTP >= 3001, network, mime, utf8-string, pretty
+  Build-Depends:   mediawiki, base >= 3 && < 5, xml, HTTP >= 3001, network, mime, utf8-string, pretty
   Main-is:         examples/ListCat.hs
   Ghc-options:     -Wall -iexamples
 }
